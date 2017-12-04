@@ -43,7 +43,7 @@ describe('Creating plants in the database', () => {
     it('Find all plants by name', (done) => {
         Plant.find( { name: 'Pilea peperomioides' } )
             .then((plants) => {
-                assert(plants[0]._id.toString() === pilea._id.toString())
+                assert(plants[0]._id.toString() === pilea._id.toString());
                 done();
             });
     });
@@ -51,7 +51,7 @@ describe('Creating plants in the database', () => {
     it('Find one plant by Id', (done) => {
         Plant.findOne( { _id: pilea._id } )
             .then((plant) => {
-                assert(plant.name === pilea.name)
+                assert(plant.name === pilea.name);
                 done();
             });
     });

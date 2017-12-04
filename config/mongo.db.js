@@ -3,7 +3,6 @@ const config = require('./env/env');
 
 // Gebruik es6 promises ipv mongoose mpromise
 mongoose.Promise = global.Promise;
-console.log(config.dburl);
 mongoose.connect(config.dburl, {
     useMongoClient: true
 });

@@ -7,12 +7,14 @@ const Plant = require('../model/plant.model');
 const PlantNickname = require('../model/plant-nickname.model');
 const User = require('../model/user.model');
 const PlantList = require('../model/plant-list.model');
+const Room = require('../model/room.model');
 
 describe('Creating plants in the database', () => {
     'use strict';
-    let nicknameOne, nicknameTwo, pilea, currentUser;
+    let nicknameOne, nicknameTwo, pilea, currentUser, roomLiving;
     beforeEach((done) => {
         currentUser = new User({ name: 'Jens de Rond' });
+        roomLiving = new Room({ userObjectId: currentUser._id, name: 'Woonkamer', description: 'Kamer waar we tv kijken.' });
         nicknameOne = new PlantNickname({ name: 'Pannekoekenplant' });
         nicknameTwo = new PlantNickname({ name: 'Money plant' });
         pilea = new Plant( { name: 'Pilea peperomioides',
@@ -29,7 +31,10 @@ describe('Creating plants in the database', () => {
                 nicknameTwo
             ]
         } );
-
+        roomLiving.save()
+            .then(() => {
+                assert(!roomLiving.isNew);
+            });
         currentUser.save()
             .then(() => {
                 assert(!currentUser.isNew);
@@ -53,7 +58,7 @@ describe('Creating plants in the database', () => {
         let today = new Date();
         let newPlantlist = 
             new PlantList({ userObjectId: currentUser._id,
-                plantObjectId: pilea._id, lastWatered: today.getDate() });
+                plantObjectId: pilea._id, roomObjectId: roomLiving._id, lastWatered: today });
 
         newPlantlist.save()
             .then(() => {

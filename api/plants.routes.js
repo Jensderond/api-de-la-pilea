@@ -7,10 +7,8 @@ const auth = require('../auth/authentication');
 router.route('/')
 	.get(auth(), (req, res, next) => {
 		'use strict';
-		console.log('something');
 		Plant.find({})
 			.then((plants) => {
-				console.log(plants);
 				res.status(200).json(plants);
 			})
 			.catch(next);

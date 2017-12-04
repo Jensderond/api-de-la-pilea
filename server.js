@@ -63,7 +63,7 @@ app.use('*', (req, res) => {
 	});
 });
 
-app.listen(config.env.webPort, () => {
+app.listen(app.get('port'), () => {
 	'use strict';
 	console.log('Server is listining on ' + app.get('port'));
 	console.log('See http://localhost:'+ app.get('port') + '/plants');

@@ -7,10 +7,11 @@ const Plant = require('../model/plant.model');
 const PlantNickname = require('../model/plant-nickname.model');
 const PlantList = require('../model/plant-list.model');
 const User = require('../model/user.model');
+const Room = require('../model/room.model');
 
 describe('Creating plants in the database', () => {
     'use strict';
-    let nicknameOne, nicknameTwo, pilea, today, plantListOne, plantListTwo, currentUser;
+    let nicknameOne, nicknameTwo, pilea, today, plantListOne, plantListTwo, currentUser, roomLiving;
     beforeEach((done) => {
         today = new Date();
         nicknameOne = new PlantNickname({ name: 'Pannekoekenplant' });
@@ -30,12 +31,16 @@ describe('Creating plants in the database', () => {
             ]
         } );
         currentUser = new User({ name: 'Jens de Rond' });
+        roomLiving = new Room({ userObjectId: currentUser._id, name: 'Woonkamer', description: 'Kamer waar we tv kijken.' });
         plantListOne = new PlantList({ userObjectId: currentUser._id,
-            plantObjectId: pilea._id, lastWatered: today.getDate() });
+            plantObjectId: pilea._id, roomObjectId: roomLiving._id, lastWatered: today });
         plantListTwo = new PlantList({ userObjectId: currentUser._id,
-            plantObjectId: pilea._id, lastWatered: today.getDate() });
+            plantObjectId: pilea._id, roomObjectId: roomLiving._id, lastWatered: today });
 
-
+        roomLiving.save()
+            .then(() => {
+                assert(!roomLiving.isNew);
+            });
         currentUser.save()
             .then(() => {
                 assert(!currentUser.isNew);
@@ -64,7 +69,7 @@ describe('Creating plants in the database', () => {
             });
     });
 
-    it('Find all plants by name in a users plants list', (done) => {
+    it('Find all plants in a users plants list', (done) => {
         PlantList.find({ userObjectId: currentUser._id })
             .then((plantlist) => {
                 assert(plantlist[0].plantObjectId.toString() === pilea._id.toString());
@@ -73,11 +78,16 @@ describe('Creating plants in the database', () => {
             });
     });
 
-    it('Find one plant by Id', (done) => {
-        Plant.findOne( { _id: pilea._id } )
-            .then((plant) => {
-                assert(plant.name === pilea.name);
-                done();
+    it('Find plants by room name', (done) => {
+        Room.findOne({ name: 'Woonkamer' })
+            .then((roomsFound) => {
+                PlantList.find({ roomObjectId: roomsFound._id })
+                    .then((plantlist) => {
+                        assert(plantlist[0].plantObjectId.toString() === pilea._id.toString());
+                        assert(plantlist[1].plantObjectId.toString() === pilea._id.toString());
+                        done();
+                    });
             });
+        
     });
 });

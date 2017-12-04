@@ -4,14 +4,14 @@ const describe = mocha.describe;
 const beforeEach = mocha.beforeEach;
 const assert = require('assert');
 const Plant = require('../model/plant.model');
-const Nickname = require('../model/nickname.model');
+const PlantNickname = require('../model/plant-nickname.model');
 
 describe('Creating plants in the database', () => {
     'use strict';
-    let nicknameOne, nicknameTwo, plant;
+    let nicknameOne, nicknameTwo, pilea;
     beforeEach((done) => {
-        nicknameOne = new Nickname({ name: 'Pannekoekenplant' });
-        nicknameTwo = new Nickname({ name: 'Money plant' });
+        nicknameOne = new PlantNickname({ name: 'Pannekoekenplant' });
+        nicknameTwo = new PlantNickname({ name: 'Money plant' });
         nicknameOne.save()
             .then(() => {
                 assert(!nicknameOne.isNew);
@@ -24,7 +24,7 @@ describe('Creating plants in the database', () => {
     });
 
     it('Saves a plant', (done) => {
-        plant = 
+        pilea = 
             new Plant( { name: 'Pilea peperomioides',
                 description: 'Pilea peperomioides heeft opvallend grote ronde bladeren ',
                 type: 'Kamerplant',
@@ -32,14 +32,16 @@ describe('Creating plants in the database', () => {
                 genus: 'Pilea',
                 imagePath: 'https://upload.wikimedia.org/wikipedia' +
                             '/commons/5/5a/Pilea_peperomioides.jpg',
+                sunLevel: 3,
+                waterLevel: 2,
                 nicknames: [
                     nicknameOne,
                     nicknameTwo
                 ]
             } );
-        plant.save()
+        pilea.save()
             .then(() => {
-                assert(!plant.isNew);
+                assert(!pilea.isNew);
                 done();
             });
     });

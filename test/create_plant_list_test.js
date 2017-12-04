@@ -5,11 +5,14 @@ const beforeEach = mocha.beforeEach;
 const assert = require('assert');
 const Plant = require('../model/plant.model');
 const PlantNickname = require('../model/plant-nickname.model');
+const User = require('../model/user.model');
+const PlantList = require('../model/plant-list.model');
 
 describe('Creating plants in the database', () => {
     'use strict';
-    let nicknameOne, nicknameTwo, pilea;
+    let nicknameOne, nicknameTwo, pilea, currentUser;
     beforeEach((done) => {
+        currentUser = new User({ name: 'Jens de Rond' });
         nicknameOne = new PlantNickname({ name: 'Pannekoekenplant' });
         nicknameTwo = new PlantNickname({ name: 'Money plant' });
         pilea = new Plant( { name: 'Pilea peperomioides',
@@ -27,6 +30,10 @@ describe('Creating plants in the database', () => {
             ]
         } );
 
+        currentUser.save()
+            .then(() => {
+                assert(!currentUser.isNew);
+            });
         nicknameOne.save()
             .then(() => {
                 assert(!nicknameOne.isNew);
@@ -42,19 +49,16 @@ describe('Creating plants in the database', () => {
             });
     });
 
-    it('Find all plants by name', (done) => {
-        Plant.find( { name: 'Pilea peperomioides' } )
-            .then((plants) => {
-                assert(plants[0]._id.toString() === pilea._id.toString());
-                done();
-            });
-    });
+    it('Saves a plant to the users plantlist', (done) => {
+        let today = new Date();
+        let newPlantlist = 
+            new PlantList({ userObjectId: currentUser._id,
+                plantObjectId: pilea._id, lastWatered: today.getDate() });
 
-    it('Find one plant by Id', (done) => {
-        Plant.findOne( { _id: pilea._id } )
-            .then((plant) => {
-                assert(plant.name === pilea.name);
-                done();
+        newPlantlist.save()
+            .then(() => {
+              assert(!newPlantlist.isNew);
+              done();  
             });
     });
 });

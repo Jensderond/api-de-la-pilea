@@ -1,0 +1,9 @@
+# 'ignore' de volgende folders en bestanden:
+
+node_modules
+.idea
+.sonar/
+coverage/
+package-lock.json
+config/env
+README.example

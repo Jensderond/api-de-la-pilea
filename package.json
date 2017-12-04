@@ -1,0 +1,28 @@
+{
+  "name": "node-api-server",
+  "version": "1.0.0",
+  "description": "Node API server",
+  "main": "server.js",
+  "scripts": {
+    "test": "nodemon --exec 'mocha -R min'",
+    "start": "nodemon server.js"
+  },
+  "author": "Jens de Rond",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "express": "^4.15.2",
+    "moment": "^2.18.1",
+    "mongoose": "^4.13.0",
+    "morgan": "^1.8.1"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-http": "^3.0.0",
+    "gulp": "^3.9.1",
+    "gulp-istanbul": "^1.1.2",
+    "gulp-mocha": "^4.3.1",
+    "mocha": "^4.0.1",
+    "nodemon": "^1.12.1"
+  }
+}

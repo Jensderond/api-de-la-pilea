@@ -1,48 +1,33 @@
-/**
- * Created by dkroeske on 07/05/2017.
- */
+const jwt = require('express-jwt');
+const jwksRsa = require('jwks-rsa');
+const jwtAuthz = require('express-jwt-authz');
+require('dotenv').config({ path: './config/env/.env'});
 
-var settings = require('../config/config.json');
-const moment = require('moment');
-const jwt = require('jwt-simple');
+if (!process.env.AUTH0_DOMAIN || !process.env.AUTH0_AUDIENCE) {
+	throw 'Make sure you have AUTH0_DOMAIN, and AUTH0_AUDIENCE in your .env file';
+}
 
-//
-// Encode (van username naar token)
-//
-function encodeToken(username) {
-    const playload = {
-        exp: moment().add(2, 'days').unix(),
-        iat: moment().unix(),
-        sub: username
+const tokenGuard = jwt({
+  // Fetch the signing key based on the KID in the header and
+  // the singing keys provided by the JWKS endpoint.
+  secret: jwksRsa.expressJwtSecret({
+    cache: true,
+    rateLimit: true,
+    jwksUri: `https://${process.env.AUTH0_DOMAIN}/.well-known/jwks.json`
+  }),
+
+  // Validate the audience and the issuer.
+  audience: process.env.AUTH0_AUDIENCE,
+  issuer: `https://${process.env.AUTH0_DOMAIN}/`,
+  algorithms: ['RS256']
+});
+
+module.exports = function (scopes) {
+    'use strict';
+    const scopesGuard = jwtAuthz(scopes || []);
+    return function mid(req, res, next) {
+        tokenGuard(req, res, (err) => {
+            err ? res.status(500).send(err) : scopesGuard(req, res, next);
+        });
     };
-    return jwt.encode(playload, settings.secretkey);
-}
-
-//
-// Decode (van token naar username)
-//
-function decodeToken(token, cb) {
-
-    try {
-        const payload = jwt.decode(token, settings.secretkey);
-
-        // Check if the token has expired. To do: Trigger issue in db ..
-        const now = moment().unix();
-
-        // Check if the token has expired
-        if (now > payload.exp) {
-            console.log('Token has expired.');
-        }
-
-        // Return
-        cb(null, payload);
-
-    } catch (err) {
-        cb(err, null);
-    }
-}
-
-module.exports = {
-    encodeToken,
-    decodeToken
 };

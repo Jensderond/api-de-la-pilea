@@ -14,7 +14,7 @@ const PlantSchema = new Schema({
     imagePath: String,
     sunLevel: Number,
     waterLevel: Number,
-    nicknames: [ { type: mongoose.Schema.Types.ObjectId, ref: 'Nickname' } ]
+    nicknames: { name: String } 
 });
 
 const Plant = mongoose.model('Plant', PlantSchema);

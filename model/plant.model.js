@@ -12,8 +12,8 @@ const PlantSchema = new Schema({
     origin: String,
     genus: String,
     imagePath: String,
-    sunLevel: Number,
-    waterLevel: Number,
+    sunLevel: { type: Number, min: 1, max: 10 },
+    waterLevel: { type: Number, min: 1, max: 10 },
     nicknames: [{ name: String }]
 });
 

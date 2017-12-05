@@ -33,8 +33,6 @@ router.route('/:plantId')
 	})
 	.put(auth(), (req, res, next) => {
 		'use strict';
-		// var plant = new Plant(req.body);
-		// plant.save()
 		Plant.findByIdAndUpdate({ _id: req.params.plantId }, req.body)
 			.exec()
 			.then((plant) => {

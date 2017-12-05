@@ -16,9 +16,13 @@ describe('Creating plants in the database', () => {
         pilea = new Plant( PlantFactory.generate() );
         currentUser = new User({ name: 'Jens de Rond' });
         plantListOne = new PlantList({ userObjectId: currentUser._id,
-            plants: { _id: pilea._id, name: pilea.name, imagePath: pilea.imagePath }, room: 'Woonkamer', lastWatered: today });
+            plants: { _id: pilea._id, name: pilea.name, imagePath: pilea.imagePath },
+             room: 'Woonkamer', lastWatered: today });
+
         plantListTwo = new PlantList({ userObjectId: currentUser._id,
-            plants: { _id: pilea._id, name: pilea.name, imagePath: pilea.imagePath }, room: 'Badkamer', lastWatered: today });
+            plants: { _id: pilea._id, name: pilea.name, imagePath: pilea.imagePath },
+             room: 'Badkamer', lastWatered: today });
+             
         currentUser.save()
             .then(() => {
                 assert(!currentUser.isNew);

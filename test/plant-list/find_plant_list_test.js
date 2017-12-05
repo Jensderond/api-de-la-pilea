@@ -16,9 +16,9 @@ describe('Creating plants in the database', () => {
         pilea = new Plant( PlantFactory.generate() );
         currentUser = new User({ name: 'Jens de Rond' });
         plantListOne = new PlantList({ userObjectId: currentUser._id,
-            plantObjectId: pilea._id, room: 'Woonkamer', lastWatered: today });
+            plants: { _id: pilea._id, name: pilea.name, imagePath: pilea.imagePath }, room: 'Woonkamer', lastWatered: today });
         plantListTwo = new PlantList({ userObjectId: currentUser._id,
-            plantObjectId: pilea._id, room: 'Badkamer', lastWatered: today });
+            plants: { _id: pilea._id, name: pilea.name, imagePath: pilea.imagePath }, room: 'Badkamer', lastWatered: today });
         currentUser.save()
             .then(() => {
                 assert(!currentUser.isNew);
@@ -41,8 +41,7 @@ describe('Creating plants in the database', () => {
     it('Find all plants in a users plants list', (done) => {
         PlantList.find({ userObjectId: currentUser._id })
             .then((plantlist) => {
-                assert(plantlist[0].plantObjectId.toString() === pilea._id.toString());
-                assert(plantlist[1].plantObjectId.toString() === pilea._id.toString());
+                assert(plantlist[0].plants[0].id === pilea._id.toString());
                 done();
             });
     });

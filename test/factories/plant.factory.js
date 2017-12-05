@@ -20,7 +20,7 @@ class PlantFactory {
         imagePath: faker.image.nature(),
         sunLevel: faker.random.number(10),
         waterLevel: faker.random.number(10),
-        nicknames: { name: faker.lorem.slug() }
+        nicknames: [{ name: faker.lorem.slug() }]
     }, attrs);
   }
 }

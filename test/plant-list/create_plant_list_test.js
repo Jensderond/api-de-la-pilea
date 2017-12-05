@@ -10,7 +10,7 @@ const User = require('../../model/user.model');
 
 describe('Creating plants in the database', () => {
     'use strict';
-    let nicknameOne, nicknameTwo, pilea, currentUser, roomLiving;
+    let pilea, currentUser;
     beforeEach((done) => {
         currentUser = new User({ name: 'Jens de Rond' });
         pilea = new Plant( PlantFactory.generate() );
@@ -29,7 +29,7 @@ describe('Creating plants in the database', () => {
         let today = new Date();
         let newPlantlist = 
             new PlantList({ userObjectId: currentUser._id,
-                plantObjectId: pilea._id, room: 'Woonkamer', lastWatered: today });
+                plant: { _id: pilea._id, name: pilea.name, imagePath: pilea.imagePath }, room: 'Woonkamer', lastWatered: today });
 
         newPlantlist.save()
             .then(() => {

@@ -29,8 +29,8 @@ describe('Creating plants in the database', () => {
         let today = new Date();
         let newPlantlist = 
             new PlantList({ userObjectId: currentUser._id,
-                plant: { _id: pilea._id, name: pilea.name, imagePath: pilea.imagePath }, room: 'Woonkamer', lastWatered: today });
-
+                plants: { _id: pilea._id, name: pilea.name, imagePath: pilea.imagePath }, 
+                room: 'Woonkamer', lastWatered: today });
         newPlantlist.save()
             .then(() => {
               assert(!newPlantlist.isNew);

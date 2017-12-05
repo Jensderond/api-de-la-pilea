@@ -18,8 +18,8 @@ class PlantFactory {
         origin: faker.random.locale(),
         genus: faker.hacker.verb(),
         imagePath: faker.image.nature(),
-        sunLevel: faker.random.number(10),
-        waterLevel: faker.random.number(10),
+        sunLevel: faker.random.number({min: 1, max: 10}),
+        waterLevel: faker.random.number({min: 1, max: 10}),
         nicknames: [{ name: faker.lorem.slug() }]
     }, attrs);
   }

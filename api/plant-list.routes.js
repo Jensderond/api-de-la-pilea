@@ -1,9 +1,10 @@
 var router = require('express').Router();
 var mongodb = require('../config/mongo.db');
 var PlantList = require('../model/plant-list.model');
+const auth = require('../auth/authentication');
 
 router.route('/')
-	.get((req, res, next) => {
+	.get(auth(), (req, res, next) => {
 		'use strict';
 		PlantList.find({})
 			.then((plantList) => {
@@ -11,7 +12,7 @@ router.route('/')
 			})
 			.catch(next);
 	})
-	.post((req, res, next) => {
+	.post(auth(), (req, res, next) => {
 		'use strict';
 		PlantList.create(req.body)
 			.then((plantList) => {
@@ -21,21 +22,39 @@ router.route('/')
 	});
 
 router.route('/:listId')
-	.put((req, res, next) => {
+	.get(auth(), (req, res, next) => {
 		'use strict';
-		PlantList.findByIdAndUpdate( { _id: req.params.itemId }, req.body)
-			.exec()
-			.then((plantList) => {
-				res.json(plantList);
+		PlantList.findById({ _id: req.params.listId})
+			.then((list) => {
+				res.status(200).json(list);
 			})
 			.catch(next);
 	})
-	.delete((req, res, next) => {
+	.put(auth(), (req, res, next) => {
 		'use strict';
-		PlantList.findByIdAndRemove( { _id: req.params.itemId } )
+		PlantList.findByIdAndUpdate( { _id: req.params.listId }, req.body)
+			.exec()
+			.then(() => {
+				res.status(200).json({ updated: true });
+			})
+			.catch(next);
+	})
+	.delete(auth(), (req, res, next) => {
+		'use strict';
+		PlantList.findByIdAndRemove( { _id: req.params.listId } )
 			.exec()
 			.then(() => {
 				res.status(200).json({ deleted: true });
+			})
+			.catch(next);
+	});
+
+router.route('/user/:userId')
+	.get(auth(), (req, res, next) => {
+		'use strict';
+		PlantList.find({ userObjectId: req.params.userId})
+			.then((list) => {
+				res.status(200).json(list);
 			})
 			.catch(next);
 	});

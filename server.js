@@ -41,7 +41,7 @@ app.use((req, res, next) => {
 
 app.use('/plants', require('./api/plants.routes'));
 // app.use('/favorites', require('./api/favorites.routes'));
-// app.use('/shopping-list', require('./api/shopping-list.routes'));
+app.use('/plant-list', require('./api/plant-list.routes'));
 
 app.use((err, req, res, next) => {
 	'use strict';

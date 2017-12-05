@@ -7,7 +7,6 @@ const Plant = require('../../model/plant.model');
 const PlantFactory = require('../factories/plant.factory');
 const PlantList = require('../../model/plant-list.model');
 const User = require('../../model/user.model');
-const Room = require('../../model/room.model');
 
 describe('Creating plants in the database', () => {
     'use strict';

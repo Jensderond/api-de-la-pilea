@@ -1,10 +1,9 @@
 var router = require('express').Router();
 var mongodb = require('../config/mongo.db');
 var PlantList = require('../model/plant-list.model');
-const auth = require('../auth/authentication');
 
 router.route('/')
-	.get(auth(), (req, res, next) => {
+	.get((req, res, next) => {
 		'use strict';
 		PlantList.find({})
 			.then((plantList) => {
@@ -12,7 +11,7 @@ router.route('/')
 			})
 			.catch(next);
 	})
-	.post(auth(), (req, res, next) => {
+	.post((req, res, next) => {
 		'use strict';
 		PlantList.create(req.body)
 			.then((plantList) => {
@@ -22,7 +21,7 @@ router.route('/')
 	});
 
 router.route('/:listId')
-	.get(auth(), (req, res, next) => {
+	.get((req, res, next) => {
 		'use strict';
 		PlantList.findById({ _id: req.params.listId})
 			.then((list) => {
@@ -30,7 +29,7 @@ router.route('/:listId')
 			})
 			.catch(next);
 	})
-	.put(auth(), (req, res, next) => {
+	.put((req, res, next) => {
 		'use strict';
 		PlantList.findByIdAndUpdate( { _id: req.params.listId }, req.body)
 			.exec()
@@ -39,7 +38,7 @@ router.route('/:listId')
 			})
 			.catch(next);
 	})
-	.delete(auth(), (req, res, next) => {
+	.delete((req, res, next) => {
 		'use strict';
 		PlantList.findByIdAndRemove( { _id: req.params.listId } )
 			.exec()
@@ -50,7 +49,7 @@ router.route('/:listId')
 	});
 
 router.route('/user/:userId')
-	.get(auth(), (req, res, next) => {
+	.get((req, res, next) => {
 		'use strict';
 		PlantList.find({ userObjectId: req.params.userId})
 			.then((list) => {

@@ -7,8 +7,10 @@ const PlantFactory = require('../factories/plant.factory');
 
 describe('Creating plants in the database', () => {
     'use strict';
+
     it('Saves a plant', (done) => {
         let pilea = new Plant(PlantFactory.generate());
+
         pilea.save()
             .then(() => {
                 assert(!pilea.isNew);

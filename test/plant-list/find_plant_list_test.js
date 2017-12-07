@@ -14,7 +14,7 @@ describe('Creating plants in the database', () => {
     beforeEach((done) => {
         today = new Date();
         pilea = new Plant( PlantFactory.generate() );
-        currentUser = new User({ name: 'Jens de Rond' });
+        currentUser = new User({ name: 'Jens de Rond', email: 'jens@roundtheweb.nl', password: 'password123', admin: false });
         plantListOne = new PlantList({ userObjectId: currentUser._id,
             plants: { _id: pilea._id, name: pilea.name, imagePath: pilea.imagePath },
              room: 'Woonkamer', lastWatered: today });

@@ -6,13 +6,10 @@ const it = mocha.it;
 const Plant = require('../../model/plant.model');
 const PlantFactory = require('../factories/plant.factory');
 
-describe('Finding plants in the database', () => {
+describe('Update plants in the database', () => {
     'use strict';
     let pilea;
     beforeEach((done) => {
-        // let lotsOfPlants = new Plant();
-        // lotsOfPlants.
-        // TODO: Add a list of plants.
         pilea = new Plant( PlantFactory.generate() );
         pilea.save()
             .then(() => {
@@ -21,19 +18,16 @@ describe('Finding plants in the database', () => {
             });
     });
 
-    it('Find all plants by name', (done) => {
-        Plant.find( { name: pilea.name } )
-            .then((plants) => {
-                assert(plants[0]._id.toString() === pilea._id.toString());
-                done();
-            });
-    });
-
-    it('Find one plant by Id', (done) => {
-        Plant.findById( { _id: pilea._id } )
+    it('Find one plant by Id and update the name', (done) => {
+        pilea.name = "Boterbloem";
+        Plant.findByIdAndUpdate( { _id: pilea._id }, pilea )
+            .exec()
+            .then(() => Plant.findById({ _id: pilea._id }))
             .then((plant) => {
                 assert(plant.name === pilea.name);
                 done();
             });
     });
+
+
 });

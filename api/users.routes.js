@@ -1,48 +1,47 @@
 var router = require('express').Router();
 var mongodb = require('../config/mongo.db');
-var Plant = require('../model/plant.model');
+var User = require('../model/user.model');
 
 
 router.route('/')
 	.get((req, res, next) => {
 		'use strict';
-		Plant.find({})
-			.then((plants) => {
-				res.status(200).json(plants);
+		User.find({})
+			.then((users) => {
+				res.status(200).json(users);
 			})
 			.catch(next);
 	})
 	.post((req, res, next) => {
 		'use strict';
-		Plant.create(req.body)
-			.then((newPlant) => {
-				res.status(200).json(newPlant);
+		User.create(req.body)
+			.then((newUser) => {
+				res.status(200).json(newUser);
 			})
 			.catch(next);
 	});
 
-router.route('/:plantId')
+router.route('/:userId')
 	.get((req, res, next) => {
 		'use strict';
-		Plant.findById( req.params.plantId )
-			.then((plant) => {
-				res.status(200).json(plant);
+		User.findById( req.params.userId )
+			.then((user) => {
+				res.status(200).json(user);
 			})
 			.catch(next);
 	})
 	.put((req, res, next) => {
 		'use strict';
-		Plant.findByIdAndUpdate({ _id: req.params.plantId }, req.body)
+		User.findByIdAndUpdate({ _id: req.params.userId }, req.body)
 			.exec()
-			.then(() => Plant.findById({ _id: req.params.plantId }))
-			.then((plant) => {
-				res.status(200).json(plant);
+			.then((user) => {
+				res.status(200).json(user);
 			})
 			.catch(next);
 	})
 	.delete((req, res, next) => {
 		'use strict';
-		Plant.remove({ _id: req.params.plantId}).exec()
+		User.remove({ _id: req.params.userId}).exec()
 			.then(() => {
 				res.status(200).json({ deleted: true });
 			})

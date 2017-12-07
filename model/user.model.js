@@ -6,7 +6,19 @@ const UserSchema = new Schema({
         type: String,
         required: true
     },
-    title: String
+    email: {
+        type: String,
+        required: true
+    },
+    password: {
+        type: String,
+        required: true
+    },
+    admin: {
+        type: Boolean,
+        default: false
+    },
+    age: Number
 }, {
     timestamps: true
 });

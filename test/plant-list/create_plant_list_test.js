@@ -10,10 +10,19 @@ const User = require('../../model/user.model');
 
 describe('Creating plants in the database', () => {
     'use strict';
-    let pilea, currentUser;
+    let pilea, currentUser, existingPlantList, today;
     beforeEach((done) => {
-        currentUser = new User({ name: 'Jens de Rond' });
+        today = new Date();
+        currentUser = new User({ name: 'Jens de Rond', email: 'jens@roundtheweb.nl', password: 'password123', admin: false });
         pilea = new Plant( PlantFactory.generate() );
+        existingPlantList = 
+            new PlantList({ userObjectId: currentUser._id,
+                plants: { _id: pilea._id, lastWatered: today }, 
+                room: 'Badkamer' });
+        existingPlantList.save()
+            .then(() => {
+            assert(!existingPlantList.isNew);
+            })
         currentUser.save()
             .then(() => {
                 assert(!currentUser.isNew);
@@ -25,16 +34,26 @@ describe('Creating plants in the database', () => {
             });
     });
 
-    it('Saves a plant to the users plantlist', (done) => {
-        let today = new Date();
+    it('Create a users plant list', (done) => {
         let newPlantlist = 
             new PlantList({ userObjectId: currentUser._id,
-                plants: { _id: pilea._id, name: pilea.name, imagePath: pilea.imagePath }, 
-                room: 'Woonkamer', lastWatered: today });
-        newPlantlist.save()
-            .then(() => {
-              assert(!newPlantlist.isNew);
-              done();  
+                plants: { }, 
+                room: 'Woonkamer' });
+        PlantList.create(newPlantlist)
+            .then((plantList) => {
+                assert(plantList._id.toString() === newPlantlist._id.toString());
+                done();
+            })
+    });
+
+    it('Add a plant to the PlantList', (done) => {
+        let newPlant = new Plant( PlantFactory.generate() );
+        
+        PlantList.findOne( { _id: existingPlantList._id } )
+            .then((pList) => {
+                pList.plants.push({ _id: newPlant._id, lastWatered: today } );
+                assert(pList.plants.length === 2)
+                done();
             });
     });
 });

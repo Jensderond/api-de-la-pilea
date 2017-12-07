@@ -42,7 +42,8 @@ router.route('/:plantId')
 	})
 	.delete((req, res, next) => {
 		'use strict';
-		Plant.remove({ _id: req.params.plantId}).exec()
+		Plant.remove({ _id: req.params.plantId})
+			.exec()
 			.then(() => {
 				res.status(200).json({ deleted: true });
 			})

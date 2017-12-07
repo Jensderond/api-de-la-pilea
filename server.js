@@ -5,12 +5,13 @@ var logger = require('morgan');
 var mongodb = require('./config/mongo.db');
 var config = require('./config/env/env');
 var jwt    = require('jsonwebtoken');
+var bcrypt = require('bcrypt');
 var app = express();
 var User = require('./model/user.model');
 require('dotenv').config({ path: './config/env/.env'});
 
-if (!process.env.JWT_SECRET || !process.env.DATABASE) {
-	throw 'Make sure you have JWT_SECRET, and DATABASE in your .env file';
+if (!process.env.JWT_SECRET || !process.env.DATABASE || !process.env.SALT_ROUNDS) {
+	throw 'Make sure you have JWT_SECRET, SALT_ROUNDS and DATABASE in your .env file';
 }
 
 module.exports = {};
@@ -26,6 +27,7 @@ app.use(bodyParser.json({
 app.set('port', (process.env.PORT || config.env.webPort));
 app.set('env', (process.env.ENV || 'development'));
 app.set('secretJwt', process.env.JWT_SECRET);
+const saltRounds = 10;
 
 app.use(logger('dev'));
 
@@ -33,7 +35,8 @@ app.use((req, res, next) => {
 	'use strict';
 	res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-	res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
+	res.setHeader('Access-Control-Allow-Headers', 'Origin,X-Requested-With,' +
+													'Content-Type,X-Access-Token');
 	res.setHeader('Access-Control-Allow-Credentials', true);
 
 	if ('OPTIONS' === req.method) {
@@ -47,23 +50,52 @@ app.use((req, res, next) => {
 
 var mainRouter = express.Router();
 
+mainRouter.post('/register', (req, res, next) => {
+	'use strict';
+	var salt = bcrypt.genSaltSync(saltRounds);
+	var hash = bcrypt.hashSync(req.body.password, salt);
+	
+	let user = new User({
+		name: req.body.name,
+		email: req.body.email,
+		password: hash,
+		admin: false,
+		age: req.body.age
+	});
+	User.findOne({ email: user.email })
+		.then((usersFound) => {
+			if ( usersFound === null ) {
+				User.create(user)
+				.then((newUser) => {
+					res.status(200).json(newUser);
+				})
+				.catch(next);
+			}
+			else {
+				res.status(403).json({ 
+					success: false, 
+					message: 'User with this email already exists'
+				});
+			}
+		});
+});
+
 mainRouter.post('/authenticate', function(req, res) {
 		// find the user
+		'use strict';
+		console.log(req.body);
 		User.findOne({
 			email: req.body.email,
-			password: req.body.password
 		}, function(err, user) {
-	
-			console.log('hi' + user);
 
 			if (err) throw err;
 			if (!user) {
-				res.json({ success: false, message: 'Authentication failed. User not found.' });
+				res.status(403).json({ success: false, message: 'Authentication failed. User not found.' });
 			} else if (user) {
 	
 				// check if password matches
-				if (user.password != req.body.password) {
-					res.json({ success: false, message: 'Authentication failed. Wrong password.' });
+				if (!bcrypt.compareSync(req.body.password, user.password)) {
+					res.status(403).json({ success: false, message: 'Authentication failed. Wrong password.' });
 				} else {
 	
 					// if user is found and password is right
@@ -71,8 +103,9 @@ mainRouter.post('/authenticate', function(req, res) {
 					var payload = {
 						name: user.name,
 						email: user.email,
-						admin: user.admin
-					}
+						admin: user.admin,
+						userId: user._id
+					};
 					var token = jwt.sign(payload, app.get('secretJwt'), {
 						expiresIn: 86400 // expires in 24 hours
 					});
@@ -90,9 +123,9 @@ mainRouter.post('/authenticate', function(req, res) {
 });
 
 mainRouter.use(function(req, res, next) {
-	
+	'use strict';
 	// check header or url parameters or post parameters for token
-	var token = req.body.token || req.param('token') || req.headers['x-access-token'];
+	var token = req.body.token || req.params.token || req.headers['x-access-token'];
 
 	// decode token
 	if (token) {
@@ -127,7 +160,7 @@ mainRouter.use('/plant-list', require('./api/plant-list.routes'));
 
 app.use('/api', mainRouter);
 
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
 	'use strict';
 	var error = {
 		message: err.message,

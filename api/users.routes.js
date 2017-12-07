@@ -11,14 +11,6 @@ router.route('/')
 				res.status(200).json(users);
 			})
 			.catch(next);
-	})
-	.post((req, res, next) => {
-		'use strict';
-		User.create(req.body)
-			.then((newUser) => {
-				res.status(200).json(newUser);
-			})
-			.catch(next);
 	});
 
 router.route('/:userId')

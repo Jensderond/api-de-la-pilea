@@ -8,7 +8,7 @@ var jwt    = require('jsonwebtoken');
 var bcrypt = require('bcrypt');
 var app = express();
 var User = require('./model/user.model');
-require('dotenv').config({ path: './config/env/.env'});
+require('dotenv').config();
 
 if (!process.env.JWT_SECRET || !process.env.DATABASE || !process.env.SALT_ROUNDS) {
 	throw 'Make sure you have JWT_SECRET, SALT_ROUNDS and DATABASE in your .env file';

@@ -104,7 +104,8 @@ mainRouter.post('/authenticate', function(req, res) {
 						name: user.name,
 						email: user.email,
 						admin: user.admin,
-						userId: user._id
+						userId: user._id,
+						age: user.age
 					};
 					var token = jwt.sign(payload, app.get('secretJwt'), {
 						expiresIn: 86400 // expires in 24 hours

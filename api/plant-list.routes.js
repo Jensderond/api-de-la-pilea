@@ -5,7 +5,7 @@ var PlantList = require('../model/plant-list.model');
 router.route('/')
 	.get((req, res, next) => {
 		'use strict';
-		PlantList.find({})
+		PlantList.find({ userObjectId: req.decoded.userId})
 			.then((plantList) => {
 				res.status(200).json(plantList);
 			})

@@ -53,14 +53,14 @@ var mainRouter = express.Router();
 mainRouter.post('/register', (req, res, next) => {
 	'use strict';
 	var salt = bcrypt.genSaltSync(saltRounds);
-	var hash = bcrypt.hashSync(req.body.password, salt);
+	var hash = bcrypt.hashSync(req.body._password, salt);
 	
 	let user = new User({
-		name: req.body.name,
-		email: req.body.email,
+		name: req.body._name,
+		email: req.body._email,
 		password: hash,
 		admin: false,
-		age: req.body.age
+		age: req.body._age
 	});
 	User.findOne({ email: user.email })
 		.then((usersFound) => {

@@ -7,7 +7,6 @@ var session = driver.session();
 router.route('/')
 	.get((req, res, next) => {
 		'use strict';
-		var session = driver.session();
 		const userObjectId = req.decoded.userId;
 		session
 			.run(
@@ -36,9 +35,6 @@ router.route('/')
 		const newPlantList = new PlantList();
 		newPlantList.room = req.body.room;
 		newPlantList.userObjectId = req.body.userObjectId;
-		console.log(newPlantList.room);
-		console.log(newPlantList.userObjectId);
-		console.log(newPlantList.id);
 		session
 			.run(
 				'MATCH(user:Person)'+
@@ -94,11 +90,18 @@ router.route('/:listId')
 	})
 	.put((req, res, next) => {
 		'use strict';
-		PlantList.findByIdAndUpdate( { _id: req.params.listId }, req.body)
-			.exec()
+		session
+			.run(
+				'MATCH(pl:PlantList), (p:Plant) WHERE pl.listId = {listParam}, p.plantId = {plantParam} '+
+				'CREATE(pl)<-[:IS_IN]-(p)',
+				{
+					listParam: req.params.listId,
+					plantParam: req.body.plantId
+				}
+			)
 			.then(() => {
-				res.status(200).json({ updated: true });
-			})
+				res.status(200).json({ updated: true })
+			} )
 			.catch(next);
 	})
 	.delete((req, res, next) => {

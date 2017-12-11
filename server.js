@@ -3,15 +3,17 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var logger = require('morgan');
 var mongodb = require('./config/mongo.db');
+var driver = require('./config/neo4j.db');
 var config = require('./config/env/env');
 var jwt    = require('jsonwebtoken');
 var bcrypt = require('bcrypt');
 var app = express();
 var User = require('./model/user.model');
+var session = driver.session();
 require('dotenv').config();
 
-if (!process.env.JWT_SECRET || !process.env.DATABASE || !process.env.SALT_ROUNDS) {
-	throw 'Make sure you have JWT_SECRET, SALT_ROUNDS and DATABASE in your .env file';
+if (!process.env.JWT_SECRET || !process.env.DATABASE ) {
+	throw 'Make sure you have JWT_SECRET and DATABASE in your .env file';
 }
 
 module.exports = {};
@@ -67,6 +69,35 @@ mainRouter.post('/register', (req, res, next) => {
 			if ( usersFound === null ) {
 				User.create(user)
 				.then((newUser) => {
+					session
+						.run('CREATE(n:Person {userId:{idParam}, name:{nameParam}, email:{emailParam},' + 
+								'age:{ageParam}}) RETURN n.userId as id, n.name as name, n.email as email, n.age as age',
+								{ 
+									idParam:newUser.id,
+									nameParam: newUser.name,
+									emailParam: newUser.email,
+									ageParam: newUser.age 
+								}
+							)
+							.then(function(res){
+								var resultArr = [];
+								res.records.forEach((rec) => {
+									if ( rec._fields[0] !== null ){
+										resultArr.push({
+											id: rec.get('id'),
+											name: rec.get('name'),
+											email: rec.get('email'),
+											age: rec.get('age')
+										});
+										console.log(resultArr);
+									}
+								});
+								session.close();
+							})
+							.catch(function(error){
+								console.log(error);
+							});
+
 					res.status(200).json(newUser);
 				})
 				.catch(next);

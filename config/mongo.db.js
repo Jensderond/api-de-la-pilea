@@ -1,18 +1,16 @@
+'use strict'; 
 const mongoose = require('mongoose');
-const config = require('./env/env');
 
 // Gebruik es6 promises ipv mongoose mpromise
 mongoose.Promise = global.Promise;
-mongoose.connect(config.dburl, {
+mongoose.connect(process.env.MONGODB_URI, {
     useMongoClient: true
 });
 var connection = mongoose.connection
     .once('open', () => {
-        'use strict'; 
-        console.log('Connected to Mongo on ' + config.dburl);
+        console.log('Connected to Mongo on ' + process.env.MONGODB_URI);
     })
     .on('error', (error) => {
-        'use strict';
         console.warn('Warning', error.toString());
     });
 

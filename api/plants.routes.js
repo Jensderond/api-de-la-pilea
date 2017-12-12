@@ -42,7 +42,6 @@ router.route('/')
 	.post((req, res, next) => {
 		'use strict';
 		var newPlant = new Plant(req.body);
-		// console.log(newPlant);
 		session
 			.run(
 				'CREATE(plant:Plant { '+ 
@@ -109,7 +108,6 @@ router.route('/:plantId')
 		const userObjectId = req.decoded.userId;
 		const plantId = req.params.plantId;
 		var plant;
-		console.log(plantId);
 		session
 			.run(
 				'MATCH (p:Plant { plantId: {idParamList} } )'+
@@ -174,7 +172,17 @@ router.route('/:plantId')
 	})
 	.delete((req, res, next) => {
 		'use strict';
-		Plant.remove({ _id: req.params.plantId})
+		session
+			.run(
+				'MATCH(p:Plant) WHERE p.plantId = {idParam} '+
+				'DETACH DELETE p',
+				{
+					idParam: req.params.plantId
+				}
+			)
+			.then()
+			.catch(next);
+		Plant.findByIdAndRemove({ _id: req.params.plantId})
 			.exec()
 			.then(() => {
 				res.status(200).json({ deleted: true });

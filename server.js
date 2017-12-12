@@ -44,7 +44,7 @@ app.use(logger('dev'));
 
 app.use((req, res, next) => {
 	'use strict';
-	res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
+	res.setHeader('Access-Control-Allow-Origin', '*' || req.headers.origin);
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 	res.setHeader('Access-Control-Allow-Headers', 'Origin,X-Requested-With,' +
 													'Content-Type,X-Access-Token');

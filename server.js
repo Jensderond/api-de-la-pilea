@@ -201,7 +201,7 @@ mainRouter.use('/plant-list', require('./api/plant-list.routes'));
 
 app.use('/api', mainRouter);
 
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
 	'use strict';
 	var error = {
 		message: err.message,

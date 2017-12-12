@@ -24,7 +24,6 @@ router.route('/')
 						});
 					}
 				});
-				console.log(plantLists);
 				res.status(200).json(plantLists);
 				session.close();
 			})
@@ -50,7 +49,8 @@ router.route('/')
 			.then((list) => {
 				session.close();
 				if ( list.records[0].get('listId') !== null ){
-					PlantList.create(req.body)
+					newPlantList
+						.save()
 						.then((plantList) => {
 							res.status(200).json(plantList);
 						})
@@ -68,23 +68,51 @@ router.route('/:listId')
 
 		const userObjectId = req.decoded.userId;
 		const listId = req.params.listId;
-		console.log(listId);
+		var plantList = [];
 		session
 			.run(
 				'MATCH (pl:PlantList {listId:{idParamList}})-[:MADE_BY]->(u:Person {userId:{idParamPerson}})'+
 				'RETURN pl.listId as id, pl.room as room',
-				{ idParamList: req.params.listId, idParamPerson: userObjectId }
+				{ 
+					idParamList: req.params.listId,
+					idParamPerson: userObjectId
+				}
 			)
 			.then((list) => {
-				var plantList = [];
-				if ( list.records[0].get('id') !== null ){
+				session.close();
+				if ( list.records[0].get('id') !== null ) {
 					plantList.push({
 						_id: list.records[0].get('id'),
-						room: list.records[0].get('room')
+						room: list.records[0].get('room'),
+						plants: []
 					});
 				}
-				res.status(200).json(plantList[0]);
-				session.close();
+				session
+					.run(
+						'MATCH(p:Plant)-[:IS_IN]->(pl:PlantList {listId:{idParamList}}) '+
+						'RETURN p.name as name, p.imagePath as imagePath',
+						{ 
+							idParamList: req.params.listId,
+							idParamPerson: userObjectId
+						}
+					)
+					.then((plants) => {
+						// console.log(plantList);
+						var plantsInList = [];
+						if (plants.records[0] !== undefined) {
+							plants.records.forEach((rec) => {
+								if ( rec._fields[0] !== null ){
+									plantsInList.push({
+										name: rec.get('name'),
+										imagePath: rec.get('imagePath')
+									});
+								}
+							});
+						}
+						plantList[0].plants = plantsInList;
+						res.status(200).json(plantList[0]);
+					})
+					.catch(next);
 			})
 			.catch(next);
 	})
@@ -92,7 +120,7 @@ router.route('/:listId')
 		'use strict';
 		session
 			.run(
-				'MATCH(pl:PlantList), (p:Plant) WHERE pl.listId = {listParam}, p.plantId = {plantParam} '+
+				'MATCH(pl:PlantList), (p:Plant) WHERE pl.listId = {listParam} AND p.plantId = {plantParam} '+
 				'CREATE(pl)<-[:IS_IN]-(p)',
 				{
 					listParam: req.params.listId,

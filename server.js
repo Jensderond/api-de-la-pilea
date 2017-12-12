@@ -12,8 +12,17 @@ var User = require('./model/user.model');
 var session = driver.session();
 require('dotenv').config();
 
-if (!process.env.JWT_SECRET || !process.env.DATABASE ) {
-	throw 'Make sure you have JWT_SECRET and DATABASE in your .env file';
+if (
+	!process.env.JWT_SECRET || 
+	!process.env.MONGO_PATH || 
+	!process.env.MONGO_USER || 
+	!process.env.MONGO_PASS || 
+	!process.env.MONGO_DB || 
+	!process.env.NEO_DB || 
+	!process.env.NEO_USER || 
+	!process.env.NEO_PASS 
+	) {
+	throw 'Make sure you have all the correct variables in your .env file';
 }
 
 module.exports = {};

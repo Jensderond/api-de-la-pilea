@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "nodemon --exec 'mocha --recursive -R min'",
-    "start": "nodemon server.js"
+    "start": "node server.js"
   },
   "author": "Jens de Rond",
   "license": "MIT",

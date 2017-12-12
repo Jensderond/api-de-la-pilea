@@ -15,10 +15,7 @@ require('dotenv').config();
 
 if (
 	!process.env.JWT_SECRET || 
-	!process.env.MONGO_PATH || 
-	!process.env.MONGO_USER || 
-	!process.env.MONGO_PASS || 
-	!process.env.MONGO_DB || 
+	!process.env.MONGODB_URI || 
 	!process.env.NEO_DB || 
 	!process.env.NEO_USER || 
 	!process.env.NEO_PASS 

@@ -44,7 +44,6 @@ const saltRounds = 10;
 app.use(logger('dev'));
 
 app.use((req, res, next) => {
-	console.log(req.headers);
 	res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 	res.setHeader('Access-Control-Allow-Headers', 'Origin,X-Requested-With,' +
@@ -63,7 +62,10 @@ app.use((req, res, next) => {
 var mainRouter = express.Router();
 
 mainRouter.post('/register', (req, res, next) => {
+	console.log(req.body);
 	var salt = bcrypt.genSaltSync(saltRounds);
+	console.log('SALT = ');
+	console.log(salt);
 	var hash = bcrypt.hashSync(req.body._password, salt);
 	
 	let user = new User({

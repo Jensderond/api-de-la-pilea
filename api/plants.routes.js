@@ -30,14 +30,10 @@ router.route('/')
 						});
 					}
 				}
-				
-				console.log(list);
 				res.status(200).json(list);
 				session.close();
 			})
-			.catch(function(error){
-				console.log(error);
-			});
+			.catch(next);
 	})
 	.post((req, res, next) => {
 		'use strict';
@@ -88,17 +84,14 @@ router.route('/')
 							})
 							.catch(next);
 					}
-					res.status(200);
 				}
 			})
-			.catch(function(error){
-				console.log(error);
-			});
-		// Plant.create(req.body)
-		// 	.then((newPlant) => {
-		// 		res.status(200).json(newPlant);
-		// 	})
-		// 	.catch(next);
+			.catch(next);
+		newPlant.save()
+			.then((newPlant) => {
+				res.status(200).json(newPlant);
+			})
+			.catch(next);
 	});
 
 router.route('/:plantId')
@@ -110,26 +103,30 @@ router.route('/:plantId')
 		var plant;
 		session
 			.run(
-				'MATCH (p:Plant { plantId: {idParamList} } )'+
+				'MATCH (p:Plant { plantId: {idParam} } )'+
 				'RETURN p.plantId as plantId, p.name as name, p.description as description, p.type as type, p.origin as origin, p.genus as genus, ' +
 				'p.imagePath as imagePath, p.sunLevel as sunLevel, p.waterLevel as waterLevel',
-				{ idParamList: plantId, idParamPerson: userObjectId }
+				{ 
+					idParam: plantId
+				}
 			)
 			.then((list) => {
 				session.close();
-				if ( list.records[0].get('plantId') !== null ){
-					plant = {
-						_id: list.records[0].get('plantId'),
-						name: list.records[0].get('name'),
-						description: list.records[0].get('description'),
-						type: list.records[0].get('type'),
-						origin: list.records[0].get('origin'),
-						genus: list.records[0].get('genus'),
-						imagePath: list.records[0].get('imagePath'),
-						sunLevel: list.records[0].get('sunLevel'),
-						waterLevel: list.records[0].get('waterLevel'),
-						nicknames: []
-					};
+				if ( list.records[0] ) {
+					if ( list.records[0].get('plantId') !== null ){
+						plant = {
+							_id: list.records[0].get('plantId'),
+							name: list.records[0].get('name'),
+							description: list.records[0].get('description'),
+							type: list.records[0].get('type'),
+							origin: list.records[0].get('origin'),
+							genus: list.records[0].get('genus'),
+							imagePath: list.records[0].get('imagePath'),
+							sunLevel: list.records[0].get('sunLevel'),
+							waterLevel: list.records[0].get('waterLevel'),
+							nicknames: []
+						};
+					}
 				}
 				session
 					.run(
@@ -152,7 +149,9 @@ router.route('/:plantId')
 							}
 						}
 						//Set nicknames if there are any found
-						plant.nicknames = nicknameList;
+						if ( plant !== undefined ) {
+							plant.nicknames = nicknameList;
+						}
 						//Return the plant with all the info
 						res.status(200).json(plant);
 					})

@@ -1,3 +1,4 @@
+'use strict';
 var http = require('http');
 var express = require('express');
 var bodyParser = require('body-parser');
@@ -43,8 +44,8 @@ const saltRounds = 10;
 app.use(logger('dev'));
 
 app.use((req, res, next) => {
-	'use strict';
-	res.setHeader('Access-Control-Allow-Origin', '*' || req.headers.origin);
+	console.log(req.headers);
+	res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 	res.setHeader('Access-Control-Allow-Headers', 'Origin,X-Requested-With,' +
 													'Content-Type,X-Access-Token');
@@ -62,7 +63,6 @@ app.use((req, res, next) => {
 var mainRouter = express.Router();
 
 mainRouter.post('/register', (req, res, next) => {
-	'use strict';
 	var salt = bcrypt.genSaltSync(saltRounds);
 	var hash = bcrypt.hashSync(req.body._password, salt);
 	
@@ -122,8 +122,6 @@ mainRouter.post('/register', (req, res, next) => {
 
 mainRouter.post('/authenticate', function(req, res) {
 		// find the user
-		'use strict';
-		console.log(req.body);
 		User.findOne({
 			email: req.body.email,
 		}, function(err, user) {
@@ -164,7 +162,6 @@ mainRouter.post('/authenticate', function(req, res) {
 });
 
 mainRouter.use(function(req, res, next) {
-	'use strict';
 	// check header or url parameters or post parameters for token
 	var token = req.body.token || req.params.token || req.headers['x-access-token'];
 
@@ -202,7 +199,6 @@ mainRouter.use('/plant-list', require('./api/plant-list.routes'));
 app.use('/api', mainRouter);
 
 app.use((err, req, res, next) => {
-	'use strict';
 	var error = {
 		message: err.message,
 		code: err.code,
@@ -214,7 +210,6 @@ app.use((err, req, res, next) => {
 });
 
 app.use('*', (req, res) => {
-	'use strict';
 	res.status(404);
 	res.json({
 		'error': 'Deze URL is niet beschikbaar.'
@@ -222,7 +217,6 @@ app.use('*', (req, res) => {
 });
 
 app.listen(app.get('port'), () => {
-	'use strict';
 	console.log('Server is listining on ' + app.get('port'));
 	console.log('See http://localhost:'+ app.get('port') + '/plants');
 });

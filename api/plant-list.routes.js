@@ -52,7 +52,7 @@ router.route('/')
 					newPlantList
 						.save()
 						.then((plantList) => {
-							res.status(200).json(plantList);
+							res.status(201).json(plantList);
 						})
 						.catch(next);
 				}

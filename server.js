@@ -59,10 +59,7 @@ app.use((req, res, next) => {
 var mainRouter = express.Router();
 
 mainRouter.post('/register', (req, res, next) => {
-	console.log(req.body);
 	var salt = bcrypt.genSaltSync(saltRounds);
-	console.log('SALT = ');
-	console.log(salt);
 	var hash = bcrypt.hashSync(req.body._password, salt);
 	
 	let user = new User({
@@ -97,7 +94,6 @@ mainRouter.post('/register', (req, res, next) => {
 											email: rec.get('email'),
 											age: rec.get('age')
 										});
-										console.log(resultArr);
 									}
 								});
 								session.close();
@@ -106,7 +102,7 @@ mainRouter.post('/register', (req, res, next) => {
 								console.log(error);
 							});
 
-					res.status(200).json(newUser);
+					res.status(201).json(newUser);
 				})
 				.catch(next);
 			}

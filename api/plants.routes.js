@@ -1,3 +1,4 @@
+'use strict';
 var router = require('express').Router();
 var mongodb = require('../config/mongo.db');
 var Plant = require('../model/plant.model');
@@ -6,7 +7,6 @@ var session = driver.session();
 
 router.route('/')
 	.get((req, res, next) => {
-		'use strict';
 		session
 			.run(
 				'MATCH(p:Plant)'+  
@@ -36,7 +36,6 @@ router.route('/')
 			.catch(next);
 	})
 	.post((req, res, next) => {
-		'use strict';
 		var newPlant = new Plant(req.body);
 		session
 			.run(
@@ -89,16 +88,44 @@ router.route('/')
 			.catch(next);
 		newPlant.save()
 			.then((newPlant) => {
-				res.status(200).json(newPlant);
+				res.status(201).json(newPlant);
+			})
+			.catch(next);
+	});
+router.route('/favorites')
+	.get((req, res, next) => {
+		session
+			.run(
+				'MATCH(p:Plant)-[:IS_IN]->(pl:PlantList) '+
+				'RETURN p.plantId as plantId, p.name as name, p.description as description, '+
+				'p.imagePath as imagePath, COUNT(p) as score '+  
+				'ORDER BY score DESC LIMIT 5'
+			)
+			.then((plants) => {
+				session.close();
+				var list = [];
+				if ( plants.records[0] ) {
+					if ( plants.records[0].get('plantId') !== null ){
+						plants.records.forEach((rec) => {
+							if ( rec._fields[0] !== null ){
+								list.push({
+									_id: rec.get('plantId'),
+									name: rec.get('name'),
+									description: rec.get('description'),
+									imagePath: rec.get('imagePath')
+								});
+							}
+						});
+					}
+				}
+				console.log('Hi '+ list);
+				res.status(200).json(list);
 			})
 			.catch(next);
 	});
 
 router.route('/:plantId')
 	.get((req, res, next) => {
-		'use strict';
-
-		const userObjectId = req.decoded.userId;
 		const plantId = req.params.plantId;
 		var plant;
 		session
@@ -160,7 +187,6 @@ router.route('/:plantId')
 			.catch(next);
 	})
 	.put((req, res, next) => {
-		'use strict';
 		Plant.findByIdAndUpdate({ _id: req.params.plantId }, req.body)
 			.exec()
 			.then(() => Plant.findById({ _id: req.params.plantId }))
@@ -170,7 +196,6 @@ router.route('/:plantId')
 			.catch(next);
 	})
 	.delete((req, res, next) => {
-		'use strict';
 		session
 			.run(
 				'MATCH(p:Plant) WHERE p.plantId = {idParam} '+

@@ -89,8 +89,8 @@ router.route('/:listId')
 				}
 				session
 					.run(
-						'MATCH(p:Plant)-[:IS_IN]->(pl:PlantList {listId:{idParamList}}) '+
-						'RETURN p.name as name, p.imagePath as imagePath',
+						'MATCH(p:Plant)-[r:IS_IN]->(pl:PlantList {listId:{idParamList}}) '+
+						'RETURN p.plantId as plantId, p.name as name, p.imagePath as imagePath, r.lastWatered as lastWatered',
 						{ 
 							idParamList: req.params.listId,
 							idParamPerson: userObjectId
@@ -103,8 +103,10 @@ router.route('/:listId')
 							plants.records.forEach((rec) => {
 								if ( rec._fields[0] !== null ){
 									plantsInList.push({
+										id: rec.get('plantId'),
 										name: rec.get('name'),
-										imagePath: rec.get('imagePath')
+										imagePath: rec.get('imagePath'),
+										lastWatered: rec.get('lastWatered')
 									});
 								}
 							});
@@ -118,23 +120,25 @@ router.route('/:listId')
 	})
 	.put((req, res, next) => {
 		'use strict';
+		const today = new Date();
 		session
 			.run(
 				'MATCH(pl:PlantList), (p:Plant) WHERE pl.listId = {listParam} AND p.plantId = {plantParam} '+
-				'CREATE(pl)<-[:IS_IN]-(p)',
+				'CREATE(pl)<-[r:IS_IN {lastWatered: {dateParam}}]-(p)'+
+				'RETURN pl, r',
 				{
 					listParam: req.params.listId,
-					plantParam: req.body.plantId
+					plantParam: req.body.plantId,
+					dateParam: today.toDateString()
 				}
 			)
-			.then(() => {
+			.then((relation) => {
 				res.status(200).json({ updated: true })
 			} )
 			.catch(next);
 	})
 	.delete((req, res, next) => {
 		'use strict';
-
 		session
 			.run(
 				'MATCH(pl:PlantList) WHERE pl.listId = {listParam} '+
@@ -153,4 +157,37 @@ router.route('/:listId')
 			.catch(next);
 	});
 
+router.route('/:listId/:plantId')
+	.put((req, res, next) => {
+		'use strict';
+		session
+			.run(
+				'MATCH(pl:PlantList), (p:Plant) WHERE pl.listId = {listParam} AND p.plantId = {plantParam} '+
+				'CREATE(pl)<-[:IS_IN]-(p)',
+				{
+					listParam: req.params.listId,
+					plantParam: req.body.plantId
+				}
+			)
+			.then(() => {
+				res.status(200).json({ updated: true })
+			} )
+			.catch(next);
+	})
+	.delete((req, res, next) => {
+		'use strict';
+		session
+			.run(
+				'MATCH(pl:PlantList)<-[r:IS_IN]-(p:Plant) WHERE pl.listId = {listParam} AND p.plantId = {plantParam} '+
+				'DELETE r',
+				{
+					listParam: req.params.listId,
+					plantParam: req.params.plantId
+				}
+			)
+			.then(() => {
+				res.status(200).json({ deleted: true });
+			})
+			.catch(next);
+	});
 module.exports = router;

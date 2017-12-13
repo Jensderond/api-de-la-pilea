@@ -1,5 +1,6 @@
 'use strict'; 
 const mongoose = require('mongoose');
+require('dotenv').config();
 
 // Gebruik es6 promises ipv mongoose mpromise
 mongoose.Promise = global.Promise;

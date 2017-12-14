@@ -162,6 +162,24 @@ router.route('/:listId')
 			.catch(next);
 	});
 
+router.route('/:listId/updateName')
+	.put((req, res, next) => {
+		'use strict';
+		session
+			.run(
+				'MATCH(pl:PlantList) WHERE pl.listId = {listParam}'+
+				'SET pl.room = {nameParam}',
+				{
+					listParam: req.params.listId,
+					nameParam: req.body.name
+				}
+			)
+			.then(() => {
+				res.status(200).json({ updated: true });
+			} )
+			.catch(next);
+	});
+
 router.route('/:listId/:plantId')
 	.put((req, res, next) => {
 		'use strict';

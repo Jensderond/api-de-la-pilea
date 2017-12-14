@@ -120,19 +120,25 @@ router.route('/:listId')
 	.put((req, res, next) => {
 		'use strict';
 		const today = new Date();
+		const year = today.getUTCFullYear();
+		const month = today.getUTCMonth() + 1; //months from 1-12
+		const day = today.getUTCDate();
+		const hour = today.getUTCHours() + 1;
+		const minutes = today.getUTCMinutes();
+		const newDate = year + '' + month + '' + day + '' + hour + '' + minutes;
+		
 		session
 			.run(
 				'MATCH(pl:PlantList), (p:Plant) WHERE pl.listId = {listParam} AND p.plantId = {plantParam} '+
-				'CREATE(pl)<-[r:IS_IN {lastWatered: {dateParam}}]-(p)'+
-				'RETURN pl, r',
+				'CREATE(pl)<-[r:IS_IN {lastWatered: {dateParam}}]-(p)',
 				{
 					listParam: req.params.listId,
 					plantParam: req.body.plantId,
-					dateParam: today.toDateString()
+					dateParam: newDate.toString()
 				}
 			)
-			.then((relation) => {
-				res.status(200).json({ updated: true })
+			.then(() => {
+				res.status(200).json({ updated: true });
 			} )
 			.catch(next);
 	})
@@ -187,6 +193,34 @@ router.route('/:listId/:plantId')
 			.then(() => {
 				res.status(200).json({ deleted: true });
 			})
+			.catch(next);
+	});
+
+router.route('/:listId/:plantId/watered')
+	.put((req, res, next) => {
+		'use strict';
+		const today = new Date();
+		const year = today.getUTCFullYear();
+		const month = today.getUTCMonth() + 1; //months from 1-12
+		const day = today.getUTCDate();
+		const hour = today.getUTCHours() + 1;
+		const minutes = today.getUTCMinutes();
+		const newDate = year + '' + month + '' + day + '' + hour + '' + minutes;
+
+		session
+			.run(
+				'MATCH(pl:PlantList)<-[r:IS_IN]-(p:Plant) ' +
+				'WHERE pl.listId = {listParam} AND p.plantId = {plantParam} ' +
+				'SET r.lastWatered = {dateParam}',
+				{
+					listParam: req.params.listId,
+					plantParam: req.params.plantId,
+					dateParam: newDate
+				}
+			)
+			.then(() => {
+				res.status(200).json({ updated: true });
+			} )
 			.catch(next);
 	});
 module.exports = router;

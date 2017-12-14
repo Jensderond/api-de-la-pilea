@@ -97,7 +97,6 @@ router.route('/:listId')
 						}
 					)
 					.then((plants) => {
-						// console.log(plantList);
 						var plantsInList = [];
 						if (plants.records[0] !== undefined) {
 							plants.records.forEach((rec) => {
